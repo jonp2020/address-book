@@ -1,0 +1,16 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+header {
+  justify-content: center;
+  align-items: center;
+}
+
+.fa-address-book {
+  margin-left: 1rem;
+  font-size: 2.5rem;
+  transform: scaleX(-1);
+}
