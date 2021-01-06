@@ -14,3 +14,45 @@ header {
   font-size: 2.5rem;
   transform: scaleX(-1);
 }
+
+.add-contacts-form-hidden {
+  display: none;
+  /* animation: fadeInAnimation ease 0.4s; */
+}
+/* 
+@keyframes fadeInAnimation {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+} */
+
+.form-heading-container {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.contact-btns {
+  margin: 1rem 0;
+}
+
+.fas {
+  font-size: 1.5rem;
+  margin-right: 5px;
+  transform: translateY(10%);
+  color: #494848;
+}
+
+@media (max-width: 600px) {
+  .header h1 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .email-phone {
+    flex-direction: column;
+  }
+}

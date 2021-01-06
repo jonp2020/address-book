@@ -13,6 +13,7 @@
       integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
       crossorigin="anonymous"
     />
+
     <link rel="stylesheet" href="style.css" />
     <title>Address Book</title>
   </head>
@@ -21,6 +22,130 @@
       <h1 class="text-light">My Address Book</h1>
       <i class="far fa-address-book text-light"></i>
     </header>
+    <nav class="navbar navbar-dark bg-dark">
+      <div class="d-flex container navbar-container">
+        <div class="add-show-btns">
+          <button
+            id="add-contact-btn"
+            type="button"
+            class="btn btn-outline-light add-contact-nav-btn me-2"
+          >
+            Add contact
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-outline-light show-all-contacts-nav-btn"
+          >
+            Show All
+          </button>
+        </div>
+        <form class="form-inline my-2 my-lg-0 d-flex">
+          <input
+            id="search-contact-form"
+            class="form-control my-2 mr-sm-2"
+            type="search"
+            placeholder="Search contacts"
+            aria-label="Search"
+          />
+          <button
+            id="contact-search-btn"
+            class="btn btn-outline-light my-2 search-btn ms-2"
+            type="submit"
+          >
+            Search
+          </button>
+        </form>
+      </div>
+    </nav>
+
+    <div
+      id="addContacts-form"
+      class="container mt-4 p-2 add-contacts-form-container add-contacts-form-hidden"
+    >
+      <form id="contacts-form">
+        <div class="d-flex mb-2 form-heading-container">
+          <h2 class="">Enter contact details</h2>
+          <button
+            type="button"
+            class="btn btn-secondary ml-auto btn-sm form-btn-close"
+          >
+            Close
+          </button>
+        </div>
+
+        <div class="form-floating mb-3">
+          <input
+            type="text"
+            class="form-control"
+            id="first-name-form"
+            placeholder="First name"
+          />
+          <label for="first-name-form">First name</label>
+        </div>
+
+        <div class="form-floating mb-3">
+          <input
+            type="text"
+            class="form-control"
+            id="last-name-form"
+            placeholder="Last name"
+          />
+          <label for="last-name">Last name</label>
+        </div>
+
+        <div class="form-floating mb-3">
+          <input
+            type="number"
+            class="form-control"
+            id="phone-form"
+            placeholder="phone"
+          />
+          <label for="phone">Phone</label>
+        </div>
+
+        <div class="form-floating mb-3">
+          <input
+            type="email"
+            class="form-control"
+            id="email-form"
+            placeholder="name@example.com"
+          />
+          <label for="email">Email address</label>
+        </div>
+        <button
+          id="submit-add-contact"
+          type="submit"
+          class="btn btn-primary mb-4"
+        >
+          Add
+        </button>
+      </form>
+    </div>
+
+    <div class="sortingBtn-container container d-flex align-items-center mt-3">
+      <p class="mb-0 pe-2">Sort by:</p>
+      <button
+        id="sortby-first-name"
+        type="submit"
+        class="btn btn-sm btn-outline-secondary me-2"
+        value="first-name"
+      >
+        First Name
+      </button>
+      <button
+        id="sortby-last-name"
+        type="submit"
+        class="btn btn-sm btn-outline-secondary"
+        value="last-name"
+      >
+        Last Name
+      </button>
+    </div>
+    <div class="container">
+      <div id="contacts-row" class="row"></div>
+    </div>
+
     <script src="app.js"></script>
   </body>
 </html>
