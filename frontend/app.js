@@ -10,10 +10,23 @@ const addEmail = document.querySelector("#email-form");
 
 addContactNavButton.addEventListener("click", () => {
   addContactsForm.classList.toggle("add-contacts-form-hidden");
+  if (addContactsForm.classList.contains("add-contacts-form-hidden")) {
+    console.log("yes");
+    addFirstName.value = "";
+    addLastName.value = "";
+    addPhone.value = "";
+    addEmail.value = "";
+  }
 });
 
 formCloseBtn.addEventListener("click", () => {
   addContactsForm.classList.toggle("add-contacts-form-hidden");
+  if (addContactsForm.classList.includes("add-contacts-form-hidden")) {
+    addFirstName.value = "";
+    addLastName.value = "";
+    addPhone.value = "";
+    addEmail.value = "";
+  }
 });
 
 // Create a contact class
