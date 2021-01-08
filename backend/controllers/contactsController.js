@@ -10,7 +10,8 @@ const {
 exports.getContacts = (req, res, next) => {
   fetchContacts()
     .then((contacts) => {
-      res.status(200).send({ contacts });
+      const parsedContacts = JSON.parse(contacts);
+      res.status(200).send(parsedContacts);
     })
     .catch((err) => {
       next(err);

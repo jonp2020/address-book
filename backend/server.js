@@ -1,5 +1,7 @@
 const express = require("express");
 const app = express();
+const cors = require("cors");
+
 const PORT = process.env.PORT || 9090;
 const apiRouter = require("./routes/apiRouter");
 const {
@@ -10,6 +12,7 @@ const {
 } = require("./errors/errors");
 
 app.use(express.json());
+app.use(cors());
 
 app.use("/api", apiRouter).all(handle405Error);
 

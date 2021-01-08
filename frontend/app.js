@@ -11,7 +11,6 @@ const addEmail = document.querySelector("#email-form");
 addContactNavButton.addEventListener("click", () => {
   addContactsForm.classList.toggle("add-contacts-form-hidden");
   if (addContactsForm.classList.contains("add-contacts-form-hidden")) {
-    console.log("yes");
     addFirstName.value = "";
     addLastName.value = "";
     addPhone.value = "";
@@ -21,7 +20,7 @@ addContactNavButton.addEventListener("click", () => {
 
 formCloseBtn.addEventListener("click", () => {
   addContactsForm.classList.toggle("add-contacts-form-hidden");
-  if (addContactsForm.classList.includes("add-contacts-form-hidden")) {
+  if (addContactsForm.classList.contains("add-contacts-form-hidden")) {
     addFirstName.value = "";
     addLastName.value = "";
     addPhone.value = "";
@@ -40,16 +39,18 @@ class Contact {
 }
 
 // Create a user interface class
-
 class UserInterface {
   // ADD TO THE DOM AND DISPLAY BOOKS USING DATA PASSED IN FROM STORAGE
   static displayContacts() {
-    const contacts = ContactsStorage.getContacts();
-    contacts.forEach((contact) => UserInterface.addContactsToDisplay(contact));
+    const contacts = ContactsStorage.getContacts().then((returnedContacts) => {
+      returnedContacts.forEach((contact) =>
+        UserInterface.addContactsToDisplay(contact)
+      );
+    });
   }
 
   static addContactsToDisplay(contact) {
-    const { first_name, last_name, email, phone } = contact;
+    const { id, first_name, last_name, email, phone } = contact;
 
     const contactsRow = document.querySelector("#contacts-row");
 
@@ -65,7 +66,7 @@ class UserInterface {
     );
 
     contactCardContainer.innerHTML = `
-			<div>
+			<div id=${id}>
 			<p><strong>${first_name}</strong> <strong>${last_name}</strong></p>
 			</div>
 			<div class="email-phone d-flex">
@@ -84,6 +85,15 @@ class UserInterface {
   // EDIT CONTACT INFORMATION
   static editContact(contact) {
     addContactsForm.classList.toggle("add-contacts-form-hidden");
+    addContactsForm.children[0][5].removeAttribute("id");
+    addContactsForm.children[0][5].innerText = "Update";
+
+    addContactsForm.children[0][5].id = "edit-contact-details";
+
+    const editContactDetailsBtn = document.querySelector(
+      "#edit-contact-details"
+    );
+
     const firstName = contact.children[0].children[0].children[0].innerText;
     const lastName = contact.children[0].children[0].children[1].innerText;
     const phone = contact.children[1].children[0].lastChild.textContent.slice(
@@ -98,7 +108,31 @@ class UserInterface {
     addPhone.value = phone;
     addEmail.value = email;
 
-    UserInterface.deleteContactFromDom(contact);
+    const contactId = contact.children[0].id;
+
+    editContactDetailsBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const updatedContact = {};
+      updatedContact.id = contactId;
+      updatedContact.first_name = addFirstName.value;
+      updatedContact.last_name = addLastName.value;
+      updatedContact.phone = addPhone.value;
+      updatedContact.email = addEmail.value;
+
+      if (
+        updatedContact.first_name !== "" &&
+        updatedContact.last_name !== "" &&
+        updatedContact.phone !== "" &&
+        updatedContact.email.includes("@")
+      ) {
+        ContactsStorage.editContact(updatedContact);
+        UserInterface.submitNewContactMessage("Success");
+        addFirstName.value = "";
+        addLastName.value = "";
+        addPhone.value = "";
+        addEmail.value = "";
+      }
+    });
   }
 
   // REMOVE CONTACT FROM DOM
@@ -110,51 +144,50 @@ class UserInterface {
   // HANDLE SEARCH FOR CONTACTS
   static searchContacts(searchStr) {
     const searchStrLowerCase = searchStr.toLowerCase();
-    const contacts = ContactsStorage.getContacts();
-
-    const matches = [];
-    contacts.forEach((contact) => {
-      const firstNameLower = contact.first_name.toLowerCase();
-      const lastNameLower = contact.last_name.toLowerCase();
-      const emailLower = contact.email.toLowerCase();
-      if (
-        firstNameLower.startsWith(searchStrLowerCase) ||
-        lastNameLower.startsWith(searchStrLowerCase) ||
-        contact.email.startsWith(searchStrLowerCase)
-      ) {
-        matches.push(contact);
-      }
+    const searchContacts = ContactsStorage.getContacts().then((contacts) => {
+      const matches = [];
+      contacts.forEach((contact) => {
+        const firstNameLower = contact.first_name.toLowerCase();
+        const lastNameLower = contact.last_name.toLowerCase();
+        const emailLower = contact.email.toLowerCase();
+        if (
+          firstNameLower.startsWith(searchStrLowerCase) ||
+          lastNameLower.startsWith(searchStrLowerCase) ||
+          contact.email.startsWith(searchStrLowerCase)
+        ) {
+          matches.push(contact);
+        }
+      });
+      const contactsRow = document.querySelector("#contacts-row");
+      contactsRow.innerHTML = "";
+      if (matches.length === 0) UserInterface.errorMessage("No contacts found");
+      matches.forEach((match) => UserInterface.addContactsToDisplay(match));
     });
-    const contactsRow = document.querySelector("#contacts-row");
-    contactsRow.innerHTML = "";
-    if (matches.length === 0) UserInterface.errorMessage("No contacts found");
-    matches.forEach((match) => UserInterface.addContactsToDisplay(match));
   }
 
   static sortContacts(sortBy) {
-    const contactsToSort = ContactsStorage.getContacts();
+    const contactsToSort = ContactsStorage.getContacts().then((contacts) => {
+      if (sortBy === "first-name") {
+        contacts.sort((a, b) => {
+          const nameA = a.first_name.toLowerCase();
+          const nameB = b.first_name.toLowerCase();
+          return nameA.localeCompare(nameB);
+        });
+      } else {
+        contacts.sort((a, b) => {
+          const nameA = a.last_name.toLowerCase();
+          const nameB = b.last_name.toLowerCase();
+          return nameA.localeCompare(nameB);
+        });
+      }
+      const contactsRow = document.querySelector("#contacts-row");
+      contactsRow.innerHTML = "";
+      if (contacts.length === 0)
+        UserInterface.errorMessage("No contacts to complete this task");
 
-    if (sortBy === "first-name") {
-      contactsToSort.sort((a, b) => {
-        const nameA = a.first_name.toLowerCase();
-        const nameB = b.first_name.toLowerCase();
-        return nameA.localeCompare(nameB);
+      contacts.forEach((contact) => {
+        UserInterface.addContactsToDisplay(contact);
       });
-    } else {
-      contactsToSort.sort((a, b) => {
-        const nameA = a.last_name.toLowerCase();
-        const nameB = b.last_name.toLowerCase();
-        return nameA.localeCompare(nameB);
-      });
-    }
-
-    const contactsRow = document.querySelector("#contacts-row");
-    contactsRow.innerHTML = "";
-    if (contactsToSort.length === 0)
-      UserInterface.errorMessage("No contacts to complete this task");
-
-    contactsToSort.forEach((contact) => {
-      UserInterface.addContactsToDisplay(contact);
     });
   }
 
@@ -203,60 +236,66 @@ class UserInterface {
     setTimeout(() => {
       contactsForm.removeChild(message);
     }, 4000);
-    // }
   }
 }
 
 // Create a storage class to connect to and retrieve contacts in storage
 class ContactsStorage {
   // GET CONTACTS AND SEND TO USERINTERFACE CLASS WHEN CALLED
-  static getContacts() {
-    return [
-      {
-        first_name: "David",
-        last_name: "Platt",
-        phone: "01913478234",
-        email: "david.platt@corrie.co.uk",
+  static async getContacts() {
+    const config = {
+      headers: {
+        Accept: "application/json",
       },
-      {
-        first_name: "Jason",
-        last_name: "Grimshaw",
-        phone: "01913478123",
-        email: "jason.grimshaw@corrie.co.uk",
-      },
-      {
-        first_name: "Ken",
-        last_name: "Barlow",
-        phone: "019134784929",
-        email: "ken.barlow@corrie.co.uk",
-      },
-      {
-        first_name: "Rita",
-        last_name: "Sullivan",
-        phone: "01913478555",
-        email: "rita.sullivan@corrie.co.uk",
-      },
-      {
-        first_name: "Steve",
-        last_name: "McDonald",
-        phone: "01913478555",
-        email: "steve.mcdonald@corrie.co.uk",
-      },
-    ];
+    };
+    try {
+      const res = await fetch("http://localhost:9090/api/contacts", config);
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      UserInterface.errorMessage(
+        "Opps. Please refresh the page and try again."
+      );
+    }
   }
 
   // ADD CONTACTS TO STORAGE
-  static addContactToStorage(contact) {
-    const contacts = ContactsStorage.getContacts();
-    contacts.push(contact);
-    console.log("add contact - array of contacts", contacts);
-    // make request to push to db
+  static async addContactToStorage(contact) {
+    const stringifiedContact = JSON.stringify(contact);
+    const postContact = await fetch("http://localhost:9090/api/contacts", {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(contact),
+    });
   }
-
   // DELETE CONTACTS FROM STORAGE
-  static deleteContact(contact) {
-    console.log("here in ContactsStorage - delete contact");
-    // Contact db and to delete contact
+  static async deleteContact(contact) {
+    const contactId = contact.children[0].id;
+
+    // Contact backend to delete contact
+    const removeContact = await fetch(
+      `http://localhost:9090/api/contacts/${contactId}`,
+      {
+        method: "DELETE",
+        mode: "cors",
+      }
+    );
+  }
+  static async editContact(contact) {
+    const updateContact = await fetch(
+      `http://localhost:9090/api/contacts/${contact.id}`,
+      {
+        method: "PATCH",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(contact),
+      }
+    );
   }
 }
 
@@ -272,8 +311,10 @@ submitAddContactBtn.addEventListener("click", (e) => {
   const last_name = addLastName.value;
   const phone = addPhone.value;
   const email = addEmail.value;
+  const checkEditBtnValue = e.target.id;
 
   if (
+    checkEditBtnValue !== "edit-contact-details" &&
     first_name !== "" &&
     last_name !== "" &&
     phone !== "" &&
@@ -288,7 +329,7 @@ submitAddContactBtn.addEventListener("click", (e) => {
     addLastName.value = "";
     addPhone.value = "";
     addEmail.value = "";
-  } else {
+  } else if (checkEditBtnValue !== "edit-contact-details") {
     UserInterface.submitNewContactMessage(
       "Please check each field is completed with the required information"
     );
@@ -341,7 +382,6 @@ contactsRow.addEventListener("click", (e) => {
     const confirmation = confirm(
       "Confirm if you want to remove this contact from your address book."
     );
-    console.log(confirmation);
     if (confirmation) {
       const contactToDelete = e.target.parentElement.parentElement;
       UserInterface.deleteContactFromDom(contactToDelete);
@@ -350,7 +390,6 @@ contactsRow.addEventListener("click", (e) => {
 
   if (e.target.id === "edit-contact-btn") {
     const contactToEdit = e.target.parentElement.parentElement;
-    console.log(contactToEdit);
     UserInterface.editContact(contactToEdit);
   }
 });
